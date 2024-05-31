@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Kafka WebSocket Test</title>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+		<script>
+			var stompClient = null;
+			function connect() 
+			{
+				console.log("2-1");
+				var socket = new SockJS('/ws');            
+				stompClient = Stomp.over(socket);            
+				stompClient.connect({}, function (frame) 
+				{                 
+					console.log('Connected: ' + frame); 
+					console.log("C-1");
+					stompClient.subscribe('/topic/messages', function (message) 
+					{             
+						console.log("C-2");        
+						showMessage(message.body);                 
+					});            
+				});         
+			}          
+			function sendMessage() {             
+				console.log("1");
+				var message = document.getElementById('message').value;    
+				console.log("2");
+				stompClient.send("/app/sendMessage", {}, message);     
+				console.log("3");    
+			}          
+			function showMessage(message) {             
+				console.log("SHM");
+				var messages = document.getElementById('messages');             
+				var messageElement = document.createElement('div');             
+				messageElement.appendChild(document.createTextNode(message));             
+				messages.appendChild(messageElement);         
+			}          
+			console.log("end-fun");
+			window.onload = connect;
+		</script> 
+	</head> 
+	<body>    
+		<div>         
+			<input type="text" id="message" />         
+			<button onclick="sendMessage()">Send</button>     
+		</div>
+		<div id="messages"></div> 
+	</body> 
+</html> 
